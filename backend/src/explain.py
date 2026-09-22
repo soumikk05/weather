@@ -305,6 +305,20 @@ class ForecastExplainer:
 
         top_escalators = escalators[:top_k_families]
 
+        # Compute Evidence Agreement & Contradiction Flag across Feature Families
+        total_pos = sum(r["total_impact"] for r in escalators)
+        total_neg = abs(sum(r["total_impact"] for r in mitigators))
+        total_weight = total_pos + total_neg
+
+        if total_weight > 1e-6:
+            dominant = max(total_pos, total_neg)
+            evidence_agreement = round(float(dominant / total_weight), 3)
+            # Contradiction flag: true if both escalators and mitigators exert substantial opposing forces
+            contradiction_flag = bool(total_pos >= 0.20 and total_neg >= 0.20 and evidence_agreement < 0.70)
+        else:
+            evidence_agreement = 1.0
+            contradiction_flag = False
+
         # Generate Plain-Language Synopsis
         if top_escalators:
             reasons = []
@@ -322,11 +336,15 @@ class ForecastExplainer:
 
         # Synthesize Operational Advisory Bulletin
         bulletin = self._build_operational_bulletin(escalators, mitigators, base_val)
+        bulletin["evidence_agreement"] = evidence_agreement
+        bulletin["contradiction_flag"] = contradiction_flag
 
         return {
             "plain_language_summary": plain_language_text,
             "top_families": family_records,
             "top_drivers": [r["top_driver_phrase"] for r in family_records if r.get("top_driver_phrase")],
+            "evidence_agreement": evidence_agreement,
+            "contradiction_flag": contradiction_flag,
             "all_attributions": all_attributions[:20],
             "base_value": round(base_val, 4),
             "operational_bulletin": bulletin,

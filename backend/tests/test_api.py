@@ -21,6 +21,21 @@ def test_health():
     assert data["status"] == "healthy"
     assert data["subdivisions_count"] == 32
     assert data["models_loaded"] is True
+    assert "current_data_date" in data
+    assert "data_recency_note" in data
+
+
+def test_system_today():
+    response = client.get("/system/today")
+    assert response.status_code == 200
+    data = response.json()
+    assert "today" in data
+    assert "is_synthetic_or_replay" in data
+    assert "data_source" in data
+    assert "earliest_date" in data
+    assert "latest_date" in data
+    assert data["today"] == data["latest_date"]
+
 
 
 def test_regions():
@@ -47,9 +62,12 @@ def test_confidence_map():
     assert "bust_probability" in first
     assert "confidence_score" in first
     assert "risk_tier" in first
+    assert "evidence_agreement" in first
+    assert "contradiction_flag" in first
     assert "plain_language_summary" in first
     assert 0.0 <= first["bust_probability"] <= 1.0
     assert 0.0 <= first["confidence_score"] <= 1.0
+    assert 0.0 <= first["evidence_agreement"] <= 1.0
 
 
 def test_region_forecast():
@@ -59,6 +77,8 @@ def test_region_forecast():
     assert len(timeline) == 10
     lead_days = [t["lead_day"] for t in timeline]
     assert lead_days == list(range(1, 11))
+    assert "evidence_agreement" in timeline[0]
+    assert "contradiction_flag" in timeline[0]
 
 
 def test_explain_region():

@@ -120,3 +120,57 @@ To prevent the catastrophic metric inflation identified in the audit:
 - The model is only provided with observable features:
   $$X_i = g_i\big(Z_{\text{predictability}}, Z_{\text{disturbance}}\big) + \eta_i$$
 - Because the mapping is non-invertible and contains stochastic atmospheric noise $\eta$, machine learning models achieve realistic baseline metrics (PR-AUC $\approx 0.35 - 0.65$) matching operational reality.
+
+---
+
+## 6. Operational API Layer Data Contract
+
+The operational API layer exposes the trained reliability models, conformal error bounds, and historical verification records to frontend dashboards and downstream client applications.
+
+### 6.1 Spatial Granularity & Location Resolution (Known MVP Limitation)
+
+- **Subdivision-Level Resolution**: All observational records, NWP forecasts, and AI predictions are evaluated strictly at the **IMD meteorological subdivision level** (32 subdivisions defined in `src/data/schema.py: SUBDIVISIONS`). There is no city-, district-, or block-level ground truth in the current pipeline.
+- **City-to-Subdivision Resolution Method**:
+  - The endpoint `GET /locations/search?q=<text>` resolves free-text queries.
+  - Queries are first matched against official subdivision names (exact case-insensitive and substring match).
+  - If no direct subdivision match is found, queries are evaluated against a catalog of 50+ major Indian state capitals and metropolitan centers.
+  - Resolution from city to subdivision is computed **programmatically via Great-Circle Haversine distance** to the nearest IMD subdivision centroid coordinate.
+  - Every response carries `match_confidence: "exact_subdivision"` or `match_confidence: "resolved_from_city"`, the centroid coordinates, and an explicit caveat note:
+    > *"All results are reported at meteorological subdivision resolution. City-level resolution is a known MVP limitation with high-resolution numerical grids planned for future phases."*
+- **Future Roadmap**: High-resolution grid-level verification ($0.12^{\circ} \times 0.12^{\circ}$ NCUM grid or $0.25^{\circ} \times 0.25^{\circ}$ IMD analysis) is planned for Phase 2.
+
+### 6.2 Temporal Granularity & Sub-Daily Honesty (Daily-Only Verification)
+
+- **Strict Daily-Accumulated Truth**:
+  - Observational ground truth (`obs_rainfall_mm`) represents 24-hour rainfall accumulations (08:30 IST to 08:30 IST), and `fcst_rainfall_mm` represents 24-hour forecast accumulations.
+  - **No sub-daily or hourly ground truth or forecast records exist anywhere in the pipeline.**
+- **Honest Day-Detail Presentation**:
+  - `GET /region/{region}/day_detail?date=<date>&lead_day=<n>` provides full daily diagnostic verification records (`granularity: "daily"`).
+  - It carries an explicit caveat note:
+    > *"Sub-daily detail is not available from current data sources; this view shows the full daily verification record."*
+  - **Illustrative Diurnal Curve**: For frontend visual rendering and diurnal temperature display, an optional 24-hour diurnal curve is generated via smooth physical interpolation (sinusoidal temperature diurnal cycle peaking at 14:00, Gaussian convective rainfall fraction peaking at 16:00).
+  - **Mandatory Flag**: Both the curve container and every hourly point carry `"is_illustrative": true`. Frontend clients MUST display an illustrative badge or notice and never present this as real hourly forecast data.
+
+### 6.3 Operational Reference Clock ("Today" Replay)
+
+- In historical archive or demonstration replay modes, the system operational reference date is anchored to the latest valid verification date present in the dataset (`2025-01-09`), exposed via:
+  - `GET /health` -> `current_data_date: str`, `data_recency_note: str`
+  - `GET /system/today` -> `today: str`, `is_synthetic_or_replay: bool`, `data_source: str`
+- Frontend dashboards must consume `today` from this endpoint to coordinate time slider controls and timeline bounds rather than using the local browser clock.
+
+### 6.4 Verification History & Calibration Verdict Matrix
+
+- `GET /region/{region}/history?days=10&lead_day=1` and `GET /region/{region}/history/summary?days=10` provide past forecast verification over the last $N$ valid days ($1 \le N \le 30$).
+- **Strict Zero-Leakage Guarantee**: `confidence_at_issue_time` is computed strictly using the row's own feature values as they existed at forecast initialization time ($T_{\text{init}}$), evaluated through the trained calibration pipeline. No future data or observed ground truth is accessed during inference.
+- **Calibration Verdict Derivation**:
+  Forecast reliability is classified into one of four operational verification quadrants by comparing the model's issue-time risk tier against verified ground truth (`was_bust`):
+  
+  | Operational Risk Flag at Issue Time | Verified Ground Truth (`was_bust == True`) | Verified Ground Truth (`was_bust == False`) |
+  |:---|:---|:---|
+  | **Flagged Risky** (`bust_prob >= 0.50` or `confidence <= 0.40`) | `flagged_risky_and_busted` *(True Positive Alert)* | `flagged_risky_no_bust` *(False Alarm)* |
+  | **Confident** (`bust_prob < 0.50` and `confidence > 0.40`) | `confident_but_busted` *(False Negative / Missed Bust)* | `confident_correct` *(True Negative)* |
+
+- **Evidence Agreement & Contradiction**:
+  - `evidence_agreement`: Float in $[0, 1]$ measuring the proportion of signed SHAP feature family contributions aligning in the dominant direction.
+  - `contradiction_flag`: Boolean flag indicating substantial opposing dynamical forces (e.g. strong thermodynamic instability conflicting with favorable large-scale oceanic suppression).
+
