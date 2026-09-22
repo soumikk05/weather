@@ -1,0 +1,236 @@
+@import "tailwindcss";
+
+@theme {
+  /* === INSTITUTIONAL PALETTE === */
+  /* Primary: Indian Institutional Blue (Indigo-Navy spectrum) */
+  --color-gov-blue-950: #050d1f;
+  --color-gov-blue-900: #0a1628;
+  --color-gov-blue-850: #0e1e38;
+  --color-gov-blue-800: #122348;
+  --color-gov-blue-700: #1a3468;
+  --color-gov-blue-600: #1e3f7f;
+  --color-gov-blue-500: #2452a0;
+  --color-gov-blue-400: #3369c4;
+  --color-gov-blue-300: #5e8fdb;
+  --color-gov-blue-200: #a3c0ee;
+  --color-gov-blue-100: #d4e3f7;
+  --color-gov-blue-50:  #edf4fc;
+
+  /* Accent: Saffron (alert states only, sparingly) */
+  --color-saffron-600: #b45309;
+  --color-saffron-500: #d97706;
+  --color-saffron-400: #f59e0b;
+  --color-saffron-100: #fef3c7;
+
+  /* Accent: Chakra Green (positive states only, sparingly) */
+  --color-chakra-700: #0f5132;
+  --color-chakra-600: #166534;
+  --color-chakra-500: #16a34a;
+  --color-chakra-400: #4ade80;
+  --color-chakra-100: #dcfce7;
+
+  /* Semantic neutrals */
+  --color-surface-0:   #ffffff;
+  --color-surface-50:  #f8f9fc;
+  --color-surface-100: #eef1f7;
+  --color-surface-200: #dde3ef;
+  --color-surface-300: #c0cadc;
+  --color-surface-400: #8fa3be;
+  --color-surface-500: #607898;
+  --color-surface-600: #445a72;
+  --color-surface-700: #2d3f54;
+  --color-surface-800: #1c2b3a;
+  --color-surface-900: #0f1a26;
+
+  /* Verdict colors (colorblind-safe: not red/green only) */
+  --color-verdict-cc:   #0369a1;   /* confident_correct: institutional blue */
+  --color-verdict-cb:   #b45309;   /* confident_but_busted: amber/saffron */
+  --color-verdict-rab:  #166534;   /* flagged_risky_and_busted: chakra green */
+  --color-verdict-rnb:  #7c3aed;   /* flagged_risky_no_bust: violet */
+
+  /* Risk tier semantic colors */
+  --color-risk-high:    #0369a1;   /* High Confidence */
+  --color-risk-mod:     #b45309;   /* Moderate Confidence */
+  --color-risk-low:     #9f1239;   /* Low Confidence - Bust Risk */
+
+  /* Typography */
+  --font-family-sans: 'Inter', 'Noto Sans', system-ui, -apple-system, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Spacing / sizing */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+}
+
+/* ===================================================================
+   GLOBAL RESET & BASE
+   =================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--color-surface-50);
+  color: var(--color-surface-900);
+  line-height: 1.5;
+}
+
+/* ===================================================================
+   COMPONENT CLASSES
+   =================================================================== */
+
+/* Cards */
+.card {
+  background: var(--color-surface-0);
+  border: 1px solid var(--color-surface-200);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.card-dark {
+  background: var(--color-gov-blue-850);
+  border: 1px solid var(--color-gov-blue-700);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  color: var(--color-gov-blue-100);
+}
+
+/* Verdict badge base */
+.verdict-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Risk tier pill */
+.risk-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Illustrative stripe pattern overlay — applied to chart wrappers */
+.illustrative-chart-wrapper {
+  position: relative;
+}
+.illustrative-chart-wrapper::after {
+  content: "ILLUSTRATIVE";
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-saffron-500);
+  background: rgba(254, 243, 199, 0.92);
+  border: 1px solid var(--color-saffron-400);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* Data table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 0.4rem 0.75rem;
+  background: var(--color-surface-100);
+  color: var(--color-surface-600);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  border-bottom: 1px solid var(--color-surface-200);
+}
+.data-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-surface-100);
+  color: var(--color-surface-800);
+  font-variant-numeric: tabular-nums;
+}
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+.data-table tr:hover td {
+  background: var(--color-surface-50);
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 22, 40, 0.72);
+  backdrop-filter: blur(3px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+/* Evidence agreement indicator */
+.evidence-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-surface-100); }
+::-webkit-scrollbar-thumb { background: var(--color-surface-300); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-surface-400); }
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-gov-blue-400);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* Numeric tabular figures */
+.tabnum { font-variant-numeric: tabular-nums; }
+
+/* Transition */
+.transition-fast { transition: all 0.15s ease; }
+.transition-med  { transition: all 0.25s ease; }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+.animate-fade-in    { animation: fadeIn 0.2s ease both; }
+.animate-pulse-sub  { animation: pulse-subtle 2s ease-in-out infinite; }
