@@ -1,0 +1,271 @@
+{
+  "overall": {
+    "test_samples": 26304,
+    "bust_class_balance": 0.1044,
+    "pr_auc": 0.7939,
+    "roc_auc": 0.9569,
+    "brier_score_raw": 0.0422,
+    "brier_score_calibrated": 0.04249,
+    "brier_skill_score": 0.5453,
+    "expected_calibration_error": 0.0073,
+    "max_calibration_error": 0.0958,
+    "csi": 0.5514,
+    "ets": 0.5142,
+    "pod": 0.6743,
+    "far": 0.2485,
+    "precision": 0.7515,
+    "recall": 0.6743,
+    "f1": 0.7108,
+    "error_mae_mm": 4.078,
+    "error_rmse_mm": 6.974,
+    "error_mbe_bias_mm": 0.075,
+    "error_pearson_r": 0.9165,
+    "conformal_90_coverage": 0.8488,
+    "conformal_90_mean_width_mm": 16.0,
+    "contingency": {
+      "hits": 1851,
+      "false_alarms": 612,
+      "misses": 894,
+      "correct_negatives": 22947
+    }
+  },
+  "lead_day_breakdown": [
+    {
+      "lead_day": 1,
+      "samples": 2631,
+      "busts": 279,
+      "observed_bust_rate": 0.106,
+      "mean_pred_bust_prob": 0.1022,
+      "pr_auc": 0.5761,
+      "roc_auc": 0.8972,
+      "brier_score": 0.0639,
+      "error_mae": 2.96
+    },
+    {
+      "lead_day": 2,
+      "samples": 2630,
+      "busts": 274,
+      "observed_bust_rate": 0.1042,
+      "mean_pred_bust_prob": 0.1128,
+      "pr_auc": 0.6282,
+      "roc_auc": 0.9145,
+      "brier_score": 0.0587,
+      "error_mae": 3.42
+    },
+    {
+      "lead_day": 3,
+      "samples": 2630,
+      "busts": 269,
+      "observed_bust_rate": 0.1023,
+      "mean_pred_bust_prob": 0.1078,
+      "pr_auc": 0.6858,
+      "roc_auc": 0.9345,
+      "brier_score": 0.0521,
+      "error_mae": 3.74
+    },
+    {
+      "lead_day": 4,
+      "samples": 2630,
+      "busts": 269,
+      "observed_bust_rate": 0.1023,
+      "mean_pred_bust_prob": 0.108,
+      "pr_auc": 0.7459,
+      "roc_auc": 0.9529,
+      "brier_score": 0.0449,
+      "error_mae": 3.83
+    },
+    {
+      "lead_day": 5,
+      "samples": 2631,
+      "busts": 243,
+      "observed_bust_rate": 0.0924,
+      "mean_pred_bust_prob": 0.0999,
+      "pr_auc": 0.7271,
+      "roc_auc": 0.95,
+      "brier_score": 0.0425,
+      "error_mae": 4.1
+    },
+    {
+      "lead_day": 6,
+      "samples": 2631,
+      "busts": 274,
+      "observed_bust_rate": 0.1041,
+      "mean_pred_bust_prob": 0.1074,
+      "pr_auc": 0.7864,
+      "roc_auc": 0.9639,
+      "brier_score": 0.0418,
+      "error_mae": 4.33
+    },
+    {
+      "lead_day": 7,
+      "samples": 2631,
+      "busts": 294,
+      "observed_bust_rate": 0.1117,
+      "mean_pred_bust_prob": 0.1117,
+      "pr_auc": 0.8571,
+      "roc_auc": 0.9685,
+      "brier_score": 0.0347,
+      "error_mae": 4.54
+    },
+    {
+      "lead_day": 8,
+      "samples": 2631,
+      "busts": 275,
+      "observed_bust_rate": 0.1045,
+      "mean_pred_bust_prob": 0.1117,
+      "pr_auc": 0.871,
+      "roc_auc": 0.9792,
+      "brier_score": 0.0306,
+      "error_mae": 4.49
+    },
+    {
+      "lead_day": 9,
+      "samples": 2630,
+      "busts": 293,
+      "observed_bust_rate": 0.1114,
+      "mean_pred_bust_prob": 0.1197,
+      "pr_auc": 0.9044,
+      "roc_auc": 0.98,
+      "brier_score": 0.0271,
+      "error_mae": 4.64
+    },
+    {
+      "lead_day": 10,
+      "samples": 2629,
+      "busts": 275,
+      "observed_bust_rate": 0.1046,
+      "mean_pred_bust_prob": 0.1252,
+      "pr_auc": 0.9065,
+      "roc_auc": 0.9862,
+      "brier_score": 0.0287,
+      "error_mae": 4.72
+    }
+  ],
+  "regime_breakdown": [
+    {
+      "regime": "active_monsoon",
+      "samples": 4480,
+      "busts": 603,
+      "observed_bust_rate": 0.1346,
+      "pr_auc": 0.5789,
+      "brier_score": 0.0808
+    },
+    {
+      "regime": "break_monsoon",
+      "samples": 1820,
+      "busts": 152,
+      "observed_bust_rate": 0.0835,
+      "pr_auc": 0.7768,
+      "brier_score": 0.0373
+    },
+    {
+      "regime": "cyclonic_disturbance",
+      "samples": 1036,
+      "busts": 226,
+      "observed_bust_rate": 0.2181,
+      "pr_auc": 0.5634,
+      "brier_score": 0.1321
+    },
+    {
+      "regime": "monsoon_depression",
+      "samples": 1400,
+      "busts": 239,
+      "observed_bust_rate": 0.1707,
+      "pr_auc": 0.6253,
+      "brier_score": 0.0953
+    },
+    {
+      "regime": "post_monsoon_transition",
+      "samples": 2540,
+      "busts": 446,
+      "observed_bust_rate": 0.1756,
+      "pr_auc": 0.942,
+      "brier_score": 0.0342
+    },
+    {
+      "regime": "quiescent_clear",
+      "samples": 14828,
+      "busts": 1030,
+      "observed_bust_rate": 0.0695,
+      "pr_auc": 0.8603,
+      "brier_score": 0.0216
+    },
+    {
+      "regime": "western_disturbance",
+      "samples": 200,
+      "busts": 49,
+      "observed_bust_rate": 0.245,
+      "pr_auc": 0.9144,
+      "brier_score": 0.0534
+    }
+  ],
+  "calibration_curve": {
+    "prob_pred": [
+      0.0116,
+      0.1524,
+      0.2444,
+      0.3495,
+      0.4534,
+      0.5532,
+      0.6458,
+      0.7648,
+      0.8541,
+      0.9776
+    ],
+    "prob_true": [
+      0.012,
+      0.1255,
+      0.2245,
+      0.3175,
+      0.3576,
+      0.503,
+      0.6655,
+      0.7253,
+      0.8038,
+      0.9524
+    ],
+    "sample_counts": [
+      20501,
+      1665,
+      1069,
+      441,
+      165,
+      670,
+      284,
+      324,
+      260,
+      925
+    ]
+  },
+  "baselines": {
+    "Baseline_1_Climatology": {
+      "pr_auc": 0.1044,
+      "brier_score": 0.0935
+    },
+    "Baseline_2_LocSeasonLead": {
+      "pr_auc": 0.1023,
+      "brier_score": 0.0935
+    },
+    "Baseline_3_EnsembleSpread": {
+      "pr_auc": 0.1255,
+      "brier_score": 0.2498
+    },
+    "Baseline_4_RecentError": {
+      "pr_auc": 0.1024,
+      "brier_score": 0.2523
+    },
+    "Baseline_5_EnsRecent": {
+      "pr_auc": 0.125,
+      "brier_score": 0.2482
+    },
+    "Baseline_6_NWPOnly": {
+      "pr_auc": 0.1506,
+      "brier_score": 0.2412
+    },
+    "Integrated_Model_Calibrated": {
+      "pr_auc": 0.7939,
+      "brier_score": 0.04249,
+      "brier_skill_score": 0.5453
+    }
+  }
+}
