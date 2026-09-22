@@ -1,0 +1,376 @@
+{
+  "overall": {
+    "test_samples": 26560,
+    "bust_class_balance": 0.4204,
+    "pr_auc": 0.9992,
+    "roc_auc": 0.9996,
+    "brier_score_raw": 0.0055,
+    "brier_score_calibrated": 0.0056,
+    "log_loss": 0.0241,
+    "error_mae_mm": 3.57,
+    "error_rmse_mm": 4.75,
+    "error_r2": 0.9908,
+    "error_p95_mm": 167.17
+  },
+  "lead_day_breakdown": [
+    {
+      "lead_day": 1,
+      "samples": 2656,
+      "busts": 1024,
+      "observed_bust_rate": 0.3855,
+      "mean_pred_bust_prob": 0.3875,
+      "pr_auc": 0.997,
+      "roc_auc": 0.9984,
+      "brier_score": 0.009,
+      "error_mae": 3.25
+    },
+    {
+      "lead_day": 2,
+      "samples": 2656,
+      "busts": 1032,
+      "observed_bust_rate": 0.3886,
+      "mean_pred_bust_prob": 0.3939,
+      "pr_auc": 0.9979,
+      "roc_auc": 0.9987,
+      "brier_score": 0.0102,
+      "error_mae": 3.32
+    },
+    {
+      "lead_day": 3,
+      "samples": 2656,
+      "busts": 1073,
+      "observed_bust_rate": 0.404,
+      "mean_pred_bust_prob": 0.4067,
+      "pr_auc": 0.998,
+      "roc_auc": 0.9989,
+      "brier_score": 0.0132,
+      "error_mae": 3.51
+    },
+    {
+      "lead_day": 4,
+      "samples": 2656,
+      "busts": 1105,
+      "observed_bust_rate": 0.416,
+      "mean_pred_bust_prob": 0.419,
+      "pr_auc": 0.9967,
+      "roc_auc": 0.9985,
+      "brier_score": 0.0115,
+      "error_mae": 3.74
+    },
+    {
+      "lead_day": 5,
+      "samples": 2656,
+      "busts": 1145,
+      "observed_bust_rate": 0.4311,
+      "mean_pred_bust_prob": 0.4318,
+      "pr_auc": 0.9997,
+      "roc_auc": 0.9998,
+      "brier_score": 0.0037,
+      "error_mae": 3.88
+    },
+    {
+      "lead_day": 6,
+      "samples": 2656,
+      "busts": 1156,
+      "observed_bust_rate": 0.4352,
+      "mean_pred_bust_prob": 0.4349,
+      "pr_auc": 0.999,
+      "roc_auc": 0.9996,
+      "brier_score": 0.0019,
+      "error_mae": 3.85
+    },
+    {
+      "lead_day": 7,
+      "samples": 2656,
+      "busts": 1155,
+      "observed_bust_rate": 0.4349,
+      "mean_pred_bust_prob": 0.4352,
+      "pr_auc": 0.9999,
+      "roc_auc": 0.9999,
+      "brier_score": 0.0014,
+      "error_mae": 3.57
+    },
+    {
+      "lead_day": 8,
+      "samples": 2656,
+      "busts": 1155,
+      "observed_bust_rate": 0.4349,
+      "mean_pred_bust_prob": 0.436,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0,
+      "brier_score": 0.0006,
+      "error_mae": 3.54
+    },
+    {
+      "lead_day": 9,
+      "samples": 2656,
+      "busts": 1157,
+      "observed_bust_rate": 0.4356,
+      "mean_pred_bust_prob": 0.4367,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0,
+      "brier_score": 0.0014,
+      "error_mae": 3.47
+    },
+    {
+      "lead_day": 10,
+      "samples": 2656,
+      "busts": 1163,
+      "observed_bust_rate": 0.4379,
+      "mean_pred_bust_prob": 0.437,
+      "pr_auc": 0.9999,
+      "roc_auc": 0.9999,
+      "brier_score": 0.003,
+      "error_mae": 3.53
+    }
+  ],
+  "regime_breakdown": [
+    {
+      "regime": "active_monsoon",
+      "samples": 4350,
+      "busts": 4350,
+      "observed_bust_rate": 1.0,
+      "mean_pred_bust_prob": 1.0,
+      "pr_auc": 1.0,
+      "roc_auc": 0.5,
+      "brier_score": 0.0,
+      "error_mae": 4.29
+    },
+    {
+      "regime": "break_monsoon",
+      "samples": 1300,
+      "busts": 1299,
+      "observed_bust_rate": 0.9992,
+      "mean_pred_bust_prob": 0.9998,
+      "pr_auc": 0.9992,
+      "roc_auc": 0.4977,
+      "brier_score": 0.0008,
+      "error_mae": 4.14
+    },
+    {
+      "regime": "cyclonic_disturbance",
+      "samples": 1930,
+      "busts": 1930,
+      "observed_bust_rate": 1.0,
+      "mean_pred_bust_prob": 1.0,
+      "pr_auc": 1.0,
+      "roc_auc": 0.5,
+      "brier_score": 0.0,
+      "error_mae": 4.3
+    },
+    {
+      "regime": "monsoon_depression",
+      "samples": 2110,
+      "busts": 2110,
+      "observed_bust_rate": 1.0,
+      "mean_pred_bust_prob": 1.0,
+      "pr_auc": 1.0,
+      "roc_auc": 0.5,
+      "brier_score": 0.0,
+      "error_mae": 5.16
+    },
+    {
+      "regime": "post_monsoon_transition",
+      "samples": 1520,
+      "busts": 1122,
+      "observed_bust_rate": 0.7382,
+      "mean_pred_bust_prob": 0.7522,
+      "pr_auc": 0.9825,
+      "roc_auc": 0.9603,
+      "brier_score": 0.0689,
+      "error_mae": 3.66
+    },
+    {
+      "regime": "quiescent_clear",
+      "samples": 15050,
+      "busts": 54,
+      "observed_bust_rate": 0.0036,
+      "mean_pred_bust_prob": 0.0048,
+      "pr_auc": 0.3268,
+      "roc_auc": 0.983,
+      "brier_score": 0.0028,
+      "error_mae": 2.92
+    },
+    {
+      "regime": "western_disturbance",
+      "samples": 300,
+      "busts": 300,
+      "observed_bust_rate": 1.0,
+      "mean_pred_bust_prob": 0.9981,
+      "pr_auc": 1.0,
+      "roc_auc": 0.5,
+      "brier_score": 0.0002,
+      "error_mae": 6.82
+    }
+  ],
+  "calibration_curve": {
+    "prob_true": [
+      0.0017,
+      0.1231,
+      0.1392,
+      0.0,
+      0.3591,
+      0.7105,
+      0.7,
+      0.7872,
+      0.9991
+    ],
+    "prob_pred": [
+      0.0028,
+      0.1298,
+      0.21,
+      0.3325,
+      0.4137,
+      0.5623,
+      0.7404,
+      0.8468,
+      0.9996
+    ]
+  },
+  "feature_importances": [
+    {
+      "feature": "regime_quiescent_clear",
+      "importance": 0.71134
+    },
+    {
+      "feature": "spread_to_lead_ratio",
+      "importance": 0.07193
+    },
+    {
+      "feature": "regime_post_monsoon_transition",
+      "importance": 0.05205
+    },
+    {
+      "feature": "moisture_convergence",
+      "importance": 0.03262
+    },
+    {
+      "feature": "regime_heat_wave",
+      "importance": 0.03113
+    },
+    {
+      "feature": "regime_break_monsoon",
+      "importance": 0.02037
+    },
+    {
+      "feature": "ensemble_spread",
+      "importance": 0.01065
+    },
+    {
+      "feature": "spread_lead_interaction",
+      "importance": 0.00902
+    },
+    {
+      "feature": "prior_day_error",
+      "importance": 0.00742
+    },
+    {
+      "feature": "regime_western_disturbance",
+      "importance": 0.00671
+    },
+    {
+      "feature": "lead_day",
+      "importance": 0.00613
+    },
+    {
+      "feature": "regime_active_monsoon",
+      "importance": 0.00474
+    },
+    {
+      "feature": "month_cos",
+      "importance": 0.00461
+    },
+    {
+      "feature": "mjo_phase",
+      "importance": 0.00391
+    },
+    {
+      "feature": "month_sin",
+      "importance": 0.00316
+    },
+    {
+      "feature": "cape_jkg",
+      "importance": 0.00252
+    },
+    {
+      "feature": "convective_vulnerability",
+      "importance": 0.00245
+    },
+    {
+      "feature": "mjo_amplitude",
+      "importance": 0.00199
+    },
+    {
+      "feature": "terrain_difficulty",
+      "importance": 0.00187
+    },
+    {
+      "feature": "enso_oni_index",
+      "importance": 0.00171
+    },
+    {
+      "feature": "baroclinic_instability",
+      "importance": 0.0017
+    },
+    {
+      "feature": "pressure_gradient_hpa",
+      "importance": 0.0015
+    },
+    {
+      "feature": "dynamic_instability_index",
+      "importance": 0.00147
+    },
+    {
+      "feature": "shear_moisture_interaction",
+      "importance": 0.00126
+    },
+    {
+      "feature": "terrain_Northeastern_Hills",
+      "importance": 0.00108
+    },
+    {
+      "feature": "terrain_Himalayan",
+      "importance": 0.00105
+    },
+    {
+      "feature": "surface_temp_c",
+      "importance": 0.00095
+    },
+    {
+      "feature": "wind_shear_mps",
+      "importance": 0.00093
+    },
+    {
+      "feature": "terrain_Northern_Plains",
+      "importance": 0.00092
+    },
+    {
+      "feature": "terrain_Arid_Desert",
+      "importance": 0.00091
+    },
+    {
+      "feature": "terrain_Western_Ghats",
+      "importance": 0.00076
+    },
+    {
+      "feature": "terrain_Peninsular_Interior",
+      "importance": 0.00076
+    },
+    {
+      "feature": "terrain_Central_Plateau",
+      "importance": 0.00037
+    },
+    {
+      "feature": "regime_monsoon_depression",
+      "importance": 0.0
+    },
+    {
+      "feature": "regime_cyclonic_disturbance",
+      "importance": 0.0
+    },
+    {
+      "feature": "terrain_Coastal_Plains",
+      "importance": 0.0
+    }
+  ]
+}

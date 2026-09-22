@@ -1,0 +1,55 @@
+{
+  "model_type": "XGBoost + CalibratedClassifierCV (Isotonic) & XGBoost Error Regressor",
+  "features_count": 36,
+  "features": [
+    "lead_day",
+    "terrain_difficulty",
+    "ensemble_spread",
+    "pressure_gradient_hpa",
+    "wind_shear_mps",
+    "moisture_convergence",
+    "enso_oni_index",
+    "mjo_amplitude",
+    "mjo_phase",
+    "surface_temp_c",
+    "cape_jkg",
+    "prior_day_error",
+    "spread_lead_interaction",
+    "shear_moisture_interaction",
+    "baroclinic_instability",
+    "convective_vulnerability",
+    "spread_to_lead_ratio",
+    "dynamic_instability_index",
+    "month_sin",
+    "month_cos",
+    "regime_quiescent_clear",
+    "regime_heat_wave",
+    "regime_active_monsoon",
+    "regime_break_monsoon",
+    "regime_western_disturbance",
+    "regime_monsoon_depression",
+    "regime_cyclonic_disturbance",
+    "regime_post_monsoon_transition",
+    "terrain_Himalayan",
+    "terrain_Northern_Plains",
+    "terrain_Northeastern_Hills",
+    "terrain_Coastal_Plains",
+    "terrain_Central_Plateau",
+    "terrain_Arid_Desert",
+    "terrain_Western_Ghats",
+    "terrain_Peninsular_Interior"
+  ],
+  "error_p95_normalization": 167.17,
+  "train_range": [
+    "2022-01-01",
+    "2024-02-04"
+  ],
+  "val_range": [
+    "2024-02-06",
+    "2024-07-17"
+  ],
+  "test_range": [
+    "2024-07-19",
+    "2024-12-30"
+  ]
+}
