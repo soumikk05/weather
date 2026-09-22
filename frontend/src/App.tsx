@@ -1,22 +1,26 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { AppContext } from './context/AppContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { api } from './lib/api'
 import { Header } from './components/Header'
-import { IndiaMap } from './components/IndiaMap'
-import { RegionDetail } from './components/RegionDetail'
-import { ExplainPanel } from './components/ExplainPanel'
-import { WhatIfLab } from './components/WhatIfLab'
-import { LoadingSpinner, EmptyState } from './components/UIComponents'
+import { GovtNavBar } from './components/GovtNavBar'
+import { LoginModal } from './components/LoginModal'
+import { IMDHomePortal } from './components/IMDHomePortal'
+import { AICockpit } from './components/AICockpit'
 
-type Tab = 'detail' | 'explain' | 'whatif'
+type MainView = 'HOME' | 'SPECIALIZED AI FORECAST'
 
-export default function App() {
-  const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
-  const [selectedLat, setSelectedLat] = useState<number | null>(null)
-  const [selectedLon, setSelectedLon] = useState<number | null>(null)
-  const [locationResult, setLocationResult] = useState(null)
-  const [activeTab, setActiveTab] = useState<Tab>('detail')
+function MainLayout() {
+  const [activeMainView, setActiveMainView] = useState<MainView>('HOME')
+  const { user, isLoggedIn, isAdmin, setLoginModalOpen } = useAuth()
+
+  // Automatically switch to full AI Cockpit when user or admin logs in
+  useEffect(() => {
+    if (isLoggedIn) {
+      setActiveMainView('SPECIALIZED AI FORECAST')
+    }
+  }, [isLoggedIn])
 
   const { data: today, isLoading } = useQuery({
     queryKey: ['system_today'],
@@ -25,35 +29,102 @@ export default function App() {
     retry: 3,
   })
 
-  const handleRegionSelect = (region: string, lat: number, lon: number) => {
-    setSelectedRegion(region)
-    setSelectedLat(lat)
-    setSelectedLon(lon)
-    setActiveTab('detail')
+  const handleNavTabChange = (navLabel: string) => {
+    if (navLabel === 'SPECIALIZED AI FORECAST') {
+      setActiveMainView('SPECIALIZED AI FORECAST')
+    } else if (navLabel === 'HOME') {
+      setActiveMainView('HOME')
+    }
   }
 
   return (
     <AppContext.Provider value={{ today: today ?? null, isLoading }}>
       <div
         style={{
-          height: '100dvh',
+          minHeight: '100dvh',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
-          background: 'var(--color-surface-50)',
+          background: '#ffffff',
+          color: '#0f172a',
         }}
       >
+        {/* 1. Official Govt Header */}
         <Header />
+
+        {/* 2. Official Govt Navigation Bar & Category Ticker */}
+        <GovtNavBar activeTab={activeMainView} onTabChange={handleNavTabChange} />
+
+        {/* 3. Login Dialog */}
+        <LoginModal />
+
+        {/* User / Admin Session Notification Banner */}
+        {isLoggedIn && (
+          <div
+            style={{
+              background: isAdmin
+                ? 'linear-gradient(90deg, #7c2d12 0%, #9a3412 100%)'
+                : 'linear-gradient(90deg, #075985 0%, #0369a1 100%)',
+              color: '#ffffff',
+              padding: '0.4rem 1.25rem',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span>{isAdmin ? '🛡️' : '👤'}</span>
+              <span>
+                <strong>AUTHENTICATED SESSION:</strong> Welcome {user?.name} ({user?.department}).
+                All AI Forecast Bust Detection & Diagnostic features unlocked on White Theme.
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => setActiveMainView('HOME')}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  color: '#ffffff',
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '3px',
+                  fontSize: '0.68rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Govt Portal View
+              </button>
+              <button
+                onClick={() => setActiveMainView('SPECIALIZED AI FORECAST')}
+                style={{
+                  background: '#ff9933',
+                  border: 'none',
+                  color: '#002b5c',
+                  padding: '0.15rem 0.5rem',
+                  borderRadius: '3px',
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                }}
+              >
+                AI Cockpit View
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* System banner if backend not reachable */}
         {!isLoading && !today && (
           <div
             role="alert"
             style={{
-              padding: '0.5rem 1.25rem',
+              padding: '0.4rem 1.25rem',
               background: '#fff1f2',
               borderBottom: '1px solid #fda4af',
-              fontSize: '0.78rem',
+              fontSize: '0.75rem',
               color: '#be123c',
               display: 'flex',
               gap: '0.5rem',
@@ -63,144 +134,33 @@ export default function App() {
             <span aria-hidden="true">⚠</span>
             Backend API not reachable at{' '}
             <code style={{ fontFamily: 'var(--font-family-mono)', fontSize: '0.72rem' }}>
-              http://localhost:8000
+              http://127.0.0.1:8000
             </code>
-            . Start with{' '}
-            <code style={{ fontFamily: 'var(--font-family-mono)', fontSize: '0.72rem' }}>
-              uvicorn api.main:app
-            </code>
-            .
+            . Run <code style={{ fontFamily: 'var(--font-family-mono)', fontSize: '0.72rem' }}>python launch.py</code> in backend.
           </div>
         )}
 
-        {/* Main layout: map left, detail right */}
-        <main
-          id="main-content"
-          style={{
-            flex: 1,
-            display: 'grid',
-            gridTemplateColumns: '1fr 440px',
-            gridTemplateRows: '1fr',
-            gap: 0,
-            overflow: 'hidden',
-          }}
-        >
-          {/* Left: India Map */}
-          <section
-            aria-label="India confidence map"
-            style={{
-              padding: '0.875rem',
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-              borderRight: '1px solid var(--color-surface-200)',
-            }}
-          >
-            <IndiaMap
-              selectedRegion={selectedRegion}
-              onRegionSelect={handleRegionSelect}
-              locationResult={locationResult}
-            />
-          </section>
+        {/* VIEW 1: PUBLIC IMD HOME PORTAL */}
+        {activeMainView === 'HOME' && (
+          <IMDHomePortal
+            onOpenAICockpit={() => setActiveMainView('SPECIALIZED AI FORECAST')}
+            onOpenLogin={() => setLoginModalOpen(true)}
+          />
+        )}
 
-          {/* Right: Tabs panel */}
-          <aside
-            aria-label="Region analysis panel"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden',
-            }}
-          >
-            {/* Tab bar */}
-            <div
-              role="tablist"
-              aria-label="Analysis view tabs"
-              style={{
-                display: 'flex',
-                borderBottom: '1px solid var(--color-surface-200)',
-                background: 'var(--color-surface-0)',
-                padding: '0 0.875rem',
-                flexShrink: 0,
-              }}
-            >
-              {([
-                { id: 'detail', label: 'Verification', disabled: !selectedRegion },
-                { id: 'explain', label: 'Explanation', disabled: !selectedRegion },
-                { id: 'whatif', label: 'What-If Lab', disabled: false },
-              ] as { id: Tab; label: string; disabled: boolean }[]).map(({ id, label, disabled }) => (
-                <button
-                  key={id}
-                  role="tab"
-                  aria-selected={activeTab === id}
-                  aria-controls={`panel-${id}`}
-                  id={`tab-${id}`}
-                  disabled={disabled}
-                  onClick={() => setActiveTab(id)}
-                  style={{
-                    padding: '0.625rem 0.875rem',
-                    border: 'none',
-                    borderBottom: activeTab === id ? '2px solid var(--color-gov-blue-500)' : '2px solid transparent',
-                    background: 'transparent',
-                    cursor: disabled ? 'not-allowed' : 'pointer',
-                    fontSize: '0.78rem',
-                    fontWeight: activeTab === id ? 700 : 500,
-                    color: activeTab === id
-                      ? 'var(--color-gov-blue-700)'
-                      : disabled
-                      ? 'var(--color-surface-400)'
-                      : 'var(--color-surface-600)',
-                    letterSpacing: '0.02em',
-                    marginBottom: '-1px',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab panels */}
-            <div
-              id="panel-detail"
-              role="tabpanel"
-              aria-labelledby="tab-detail"
-              hidden={activeTab !== 'detail'}
-              style={{ flex: 1, overflowY: 'auto', padding: '0.875rem', display: activeTab === 'detail' ? 'flex' : 'none', flexDirection: 'column' }}
-            >
-              {selectedRegion ? (
-                <RegionDetail region={selectedRegion} />
-              ) : (
-                <EmptyState message="Select a subdivision on the map or search above to view verification data." />
-              )}
-            </div>
-
-            <div
-              id="panel-explain"
-              role="tabpanel"
-              aria-labelledby="tab-explain"
-              hidden={activeTab !== 'explain'}
-              style={{ flex: 1, overflowY: 'auto', padding: '0.875rem', display: activeTab === 'explain' ? 'flex' : 'none', flexDirection: 'column' }}
-            >
-              {selectedRegion ? (
-                <ExplainPanel region={selectedRegion} />
-              ) : (
-                <EmptyState message="Select a region to view SHAP explanations and duty forecaster bulletin." />
-              )}
-            </div>
-
-            <div
-              id="panel-whatif"
-              role="tabpanel"
-              aria-labelledby="tab-whatif"
-              hidden={activeTab !== 'whatif'}
-              style={{ flex: 1, overflowY: 'auto', padding: '0.875rem', display: activeTab === 'whatif' ? 'flex' : 'none', flexDirection: 'column' }}
-            >
-              <WhatIfLab initialRegion={selectedRegion ?? undefined} />
-            </div>
-          </aside>
-        </main>
+        {/* VIEW 2: FULL AI FORECAST BUST DETECTION SYSTEM COCKPIT (WHITE THEME) */}
+        {activeMainView === 'SPECIALIZED AI FORECAST' && (
+          <AICockpit />
+        )}
       </div>
     </AppContext.Provider>
+  )
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainLayout />
+    </AuthProvider>
   )
 }

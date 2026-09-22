@@ -240,10 +240,10 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
             flex: 1,
             minHeight: 0,
             position: 'relative',
-            border: '1px solid var(--color-surface-200)',
+            border: '1px solid #cbd5e1',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
-            background: 'var(--color-gov-blue-950)',
+            background: '#f0f9ff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -256,13 +256,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
             aria-label="India forecast reliability map"
             role="img"
           >
-            <defs>
-              <radialGradient id="bgGrad" cx="50%" cy="50%">
-                <stop offset="0%" stopColor="#122348" />
-                <stop offset="100%" stopColor="#050d1f" />
-              </radialGradient>
-            </defs>
-            <rect width={W} height={H} fill="url(#bgGrad)" />
+            <rect width={W} height={H} fill="#f0f9ff" />
 
             {/* Grid lines */}
             {Array.from({ length: 7 }, (_, i) => {
@@ -270,8 +264,8 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               const x = projectLon(lon, W)
               return (
                 <g key={`vg${i}`}>
-                  <line x1={x} y1={0} x2={x} y2={H} stroke="#1a3468" strokeWidth={0.5} strokeDasharray="4 4" />
-                  <text x={x + 2} y={H - 4} fill="#1e3f7f" fontSize={7}>{lon}°E</text>
+                  <line x1={x} y1={0} x2={x} y2={H} stroke="#bae6fd" strokeWidth={0.8} strokeDasharray="4 4" />
+                  <text x={x + 2} y={H - 4} fill="#0369a1" fontSize={7}>{lon}°E</text>
                 </g>
               )
             })}
@@ -280,8 +274,8 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               const y = projectLat(lat, H)
               return (
                 <g key={`hg${i}`}>
-                  <line x1={0} y1={y} x2={W} y2={y} stroke="#1a3468" strokeWidth={0.5} strokeDasharray="4 4" />
-                  <text x={2} y={y - 2} fill="#1e3f7f" fontSize={7}>{lat}°N</text>
+                  <line x1={0} y1={y} x2={W} y2={y} stroke="#bae6fd" strokeWidth={0.8} strokeDasharray="4 4" />
+                  <text x={2} y={y - 2} fill="#0369a1" fontSize={7}>{lat}°N</text>
                 </g>
               )
             })}
@@ -348,7 +342,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
             })}
 
             {/* Title overlay */}
-            <text x={8} y={18} fontSize={9} fill="#5e8fdb" fontWeight={700} letterSpacing={1}>
+            <text x={8} y={18} fontSize={9} fill="#0b4c8c" fontWeight={700} letterSpacing={1}>
               INDIA FORECAST RELIABILITY — {32} SUBDIVISIONS
             </text>
           </svg>
