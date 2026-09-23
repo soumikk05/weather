@@ -82,32 +82,13 @@ export function Header() {
           borderBottom: '1px solid #073461',
         }}
       >
-        {/* Left: Ashoka Emblem & Official Titles */}
+        {/* Left: Golden State Emblem & Official Titles */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* Ashoka Emblem SVG */}
-          <div style={{ width: 44, height: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="38" height="46" viewBox="0 0 100 120" fill="none">
-              {/* Ashoka Chakra */}
-              <circle cx="50" cy="85" r="14" stroke="#ffffff" strokeWidth="3" />
-              {Array.from({ length: 12 }).map((_, i) => {
-                const a = (i * 30 * Math.PI) / 180
-                return (
-                  <line
-                    key={i}
-                    x1={50 + 5 * Math.cos(a)}
-                    y1={85 + 5 * Math.sin(a)}
-                    x2={50 + 13 * Math.cos(a)}
-                    y2={85 + 13 * Math.sin(a)}
-                    stroke="#ffffff"
-                    strokeWidth="1.5"
-                  />
-                )
-              })}
-              {/* Lion Capital Silhouette */}
-              <path d="M50 5 C30 15 25 35 30 55 C35 65 45 70 50 70 C55 70 65 65 70 55 C75 35 70 15 50 5 Z" fill="#ffffff" opacity="0.9" />
-              <path d="M40 25 C45 20 55 20 60 25 C55 35 45 35 40 25 Z" fill="#0b4c8c" />
-            </svg>
-          </div>
+          <img
+            src="/emblem.png"
+            alt="State Emblem of India"
+            style={{ height: '54px', width: 'auto', objectFit: 'contain' }}
+          />
 
           <div>
             <h1 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0, lineHeight: 1.2, color: '#ffffff', letterSpacing: '0.01em' }}>
@@ -158,6 +139,13 @@ export function Header() {
 
         {/* Right Logos & User / Admin Login Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Top Right Golden State Emblem of India */}
+          <img
+            src="/emblem.png"
+            alt="State Emblem of India"
+            style={{ height: '50px', width: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }}
+          />
+
           {/* Government Emblem / 150 Years Emblem Badges */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#ffffff', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
             <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#0b4c8c' }}>150 YEARS</span>

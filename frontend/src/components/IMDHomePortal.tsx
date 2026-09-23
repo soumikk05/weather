@@ -1,31 +1,77 @@
 import React, { useState } from 'react'
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps'
 
 interface IMDHomePortalProps {
   onOpenAICockpit: () => void
   onOpenLogin: () => void
 }
 
-export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalProps) {
+const STATE_TEMPERATURES: Record<string, { temp: number; color: string }> = {
+  'Jammu and Kashmir': { temp: 15, color: '#fef9c3' },
+  'Himachal Pradesh': { temp: 18, color: '#fef08a' },
+  'Punjab': { temp: 27, color: '#fcd34d' },
+  'Haryana': { temp: 28, color: '#fbbf24' },
+  'Delhi': { temp: 28, color: '#fbbf24' },
+  'Uttaranchal': { temp: 20, color: '#fef08a' },
+  'Rajasthan': { temp: 34, color: '#b91c1c' },
+  'Uttar Pradesh': { temp: 30, color: '#d97706' },
+  'Bihar': { temp: 29, color: '#f59e0b' },
+  'Gujarat': { temp: 33, color: '#c2410c' },
+  'Madhya Pradesh': { temp: 32, color: '#ea580c' },
+  'Chhattisgarh': { temp: 30, color: '#d97706' },
+  'Jharkhand': { temp: 28, color: '#f59e0b' },
+  'West Bengal': { temp: 29, color: '#f59e0b' },
+  'Orissa': { temp: 30, color: '#d97706' },
+  'Maharashtra': { temp: 31, color: '#ea580c' },
+  'Telangana': { temp: 31, color: '#c2410c' },
+  'Andhra Pradesh': { temp: 32, color: '#b91c1c' },
+  'Karnataka': { temp: 28, color: '#f59e0b' },
+  'Goa': { temp: 29, color: '#f59e0b' },
+  'Tamil Nadu': { temp: 33, color: '#b91c1c' },
+  'Kerala': { temp: 29, color: '#f59e0b' },
+  'Sikkim': { temp: 16, color: '#fef9c3' },
+  'Assam': { temp: 25, color: '#fde047' },
+  'Arunachal Pradesh': { temp: 21, color: '#fef08a' },
+  'Meghalaya': { temp: 22, color: '#fde047' },
+  'Nagaland': { temp: 23, color: '#fde047' },
+  'Manipur': { temp: 24, color: '#fde047' },
+  'Mizoram': { temp: 24, color: '#fde047' },
+  'Tripura': { temp: 26, color: '#fbbf24' },
+  'Andaman and Nicobar': { temp: 28, color: '#f59e0b' },
+  'Lakshadweep': { temp: 30, color: '#d97706' },
+}
+
+export function IMDHomePortal({ onOpenAICockpit }: IMDHomePortalProps) {
   const [activeTab, setActiveTab] = useState<'satellite' | 'radar' | 'lightning'>('satellite')
+  const [hoveredState, setHoveredState] = useState<{ name: string; temp?: number } | null>(null)
+  const [zoom, setZoom] = useState<number>(1)
+  const [center, setCenter] = useState<[number, number]>([78.9629, 22.5937])
 
   const weatherStations = [
-    { name: 'Leh', temp: '14°C', icon: '☀️', top: '15%', left: '32%' },
-    { name: 'New Delhi', temp: '27°C', icon: '🌤️', top: '30%', left: '35%' },
-    { name: 'Jaipur', temp: '30°C', icon: '☀️', top: '36%', left: '26%' },
-    { name: 'Gangtok', temp: '19°C', icon: '🌧️', top: '38%', left: '74%' },
-    { name: 'Diu', temp: '31°C', icon: '☀️', top: '50%', left: '16%' },
-    { name: 'Mumbai', temp: '30°C', icon: '🌤️', top: '56%', left: '22%' },
-    { name: 'Panjim', temp: '29°C', icon: '☀️', top: '65%', left: '24%' },
-    { name: 'Bengaluru', temp: '26°C', icon: '⛅', top: '72%', left: '32%' },
-    { name: 'Puducherry', temp: '32°C', icon: '🌤️', top: '75%', left: '44%' },
-    { name: 'Port Blair', temp: '28°C', icon: '⛈️', top: '75%', left: '85%' },
+    { name: 'Leh', temp: '14°C', icon: '☀️', coordinates: [77.5771, 34.1526] as [number, number] },
+    { name: 'New Delhi', temp: '27°C', icon: '🌤️', coordinates: [77.2090, 28.6139] as [number, number] },
+    { name: 'Jaipur', temp: '30°C', icon: '☀️', coordinates: [75.7873, 26.9124] as [number, number] },
+    { name: 'Gangtok', temp: '19°C', icon: '🌧️', coordinates: [88.6138, 27.3389] as [number, number] },
+    { name: 'Diu', temp: '31°C', icon: '☀️', coordinates: [70.9871, 20.7144] as [number, number] },
+    { name: 'Mumbai', temp: '30°C', icon: '🌤️', coordinates: [72.8777, 19.0760] as [number, number] },
+    { name: 'Panjim', temp: '29°C', icon: '☀️', coordinates: [73.8278, 15.4909] as [number, number] },
+    { name: 'Bengaluru', temp: '26°C', icon: '⛅', coordinates: [77.5946, 12.9716] as [number, number] },
+    { name: 'Puducherry', temp: '32°C', icon: '🌤️', coordinates: [79.8083, 11.9416] as [number, number] },
+    { name: 'Port Blair', temp: '28°C', icon: '⛈️', coordinates: [92.7265, 11.6234] as [number, number] },
   ]
+
+  const handleZoomIn = () => setZoom((z) => Math.min(z * 1.4, 4))
+  const handleZoomOut = () => setZoom((z) => Math.max(z / 1.4, 0.8))
+  const handleReset = () => {
+    setZoom(1)
+    setCenter([78.9629, 22.5937])
+  }
 
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '1.1fr 1.2fr 1fr',
+        gridTemplateColumns: '1.2fr 1.2fr 1fr',
         gap: '1rem',
         padding: '1rem',
         background: '#e0f2fe',
@@ -33,7 +79,7 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
         overflowY: 'auto',
       }}
     >
-      {/* ── COLUMN 1: CURRENT WEATHER (Clean Vector Outline Map) ──────────────── */}
+      {/* ── COLUMN 1: CURRENT WEATHER (State Map of India) ──────────────── */}
       <div
         style={{
           background: '#ffffff',
@@ -57,16 +103,16 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
             textTransform: 'uppercase',
           }}
         >
-          CURRENT WEATHER
+          CURRENT WEATHER (STATE MAP)
         </div>
 
-        {/* Clean Vector India Outline Map Container */}
+        {/* State Map Container */}
         <div
           style={{
             flex: 1,
             position: 'relative',
-            background: 'linear-gradient(180deg, #bae6fd 0%, #7dd3fc 100%)',
-            minHeight: '400px',
+            background: '#bae6fd',
+            minHeight: '420px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -86,6 +132,7 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
             }}
           >
             <button
+              onClick={handleReset}
               title="Reset View"
               style={{
                 width: 28,
@@ -102,6 +149,7 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
               🏠
             </button>
             <button
+              onClick={handleZoomIn}
               title="Zoom In"
               style={{
                 width: 28,
@@ -118,6 +166,7 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
               +
             </button>
             <button
+              onClick={handleZoomOut}
               title="Zoom Out"
               style={{
                 width: 28,
@@ -135,69 +184,126 @@ export function IMDHomePortal({ onOpenAICockpit, onOpenLogin }: IMDHomePortalPro
             </button>
           </div>
 
-          {/* Clean Vector India Outline Map (No text watermarks/political headers) */}
-          <svg
-            viewBox="0 0 500 550"
-            style={{ width: '92%', height: '92%', filter: 'drop-shadow(0 4px 8px rgba(0, 51, 102, 0.15))' }}
-          >
-            {/* Ocean Wave lines */}
-            <path d="M20 400 Q60 390 100 400" stroke="#0284c7" strokeWidth="1" fill="none" opacity="0.4" />
-            <path d="M350 420 Q400 410 450 420" stroke="#0284c7" strokeWidth="1" fill="none" opacity="0.4" />
-
-            {/* India Mainland Outline Path */}
-            <g fill="#fef08a" stroke="#0369a1" strokeWidth="2.5" strokeLinejoin="round">
-              <path d="
-                M 190,45 
-                L 210,35 L 230,42 L 245,65 L 235,90 
-                L 260,110 L 275,100 L 295,115 L 340,125 
-                L 380,120 L 420,135 L 440,150 L 420,170 
-                L 390,175 L 375,160 L 350,165 L 320,180 
-                L 330,205 L 305,225 L 320,255 L 290,290 
-                L 260,340 L 240,410 L 225,450 L 210,480 
-                L 190,440 L 165,370 L 150,330 L 140,290 
-                L 125,270 L 95,250 L 75,230 L 90,200 
-                L 110,195 L 120,175 L 150,170 L 160,135 
-                L 175,115 L 165,85 L 180,60 Z
-              " />
-            </g>
-
-            {/* Sub-region state border grid lines inside India */}
-            <path d="M190,45 L175,115 L260,110 M260,110 L320,180 M160,135 L120,175 M120,175 L150,270 M150,270 L260,340 M260,340 L225,450 M140,290 L240,410" stroke="#ca8a04" strokeWidth="1.2" strokeDasharray="3 3" fill="none" opacity="0.7" />
-
-            {/* Neighboring Lands silhouette */}
-            <path d="M 60,80 L 140,80 L 165,85 L 175,115 L 120,175 L 90,200 L 60,170 Z" fill="#dcfce7" stroke="#166534" strokeWidth="1.5" opacity="0.8" />
-            <path d="M 245,65 L 380,50 L 440,150 L 380,120 L 340,125 L 295,115 Z" fill="#dcfce7" stroke="#166534" strokeWidth="1.5" opacity="0.8" />
-            <path d="M 215,505 C 230,490 240,510 230,525 C 220,535 205,520 215,505 Z" fill="#dcfce7" stroke="#166534" strokeWidth="1.5" />
-          </svg>
-
-          {/* Weather Station Pins */}
-          {weatherStations.map((st) => (
+          {/* Hover Tooltip */}
+          {hoveredState && (
             <div
-              key={st.name}
               style={{
                 position: 'absolute',
-                top: st.top,
-                left: st.left,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '3px',
-                background: 'rgba(255,255,255,0.96)',
-                padding: '3px 8px',
-                borderRadius: '12px',
-                border: '1.5px solid #0369a1',
-                boxShadow: '0 3px 8px rgba(0,51,102,0.2)',
-                fontSize: '0.7rem',
-                fontWeight: 800,
-                color: '#0369a1',
-                cursor: 'pointer',
-                zIndex: 5,
+                top: '12px',
+                right: '12px',
+                background: 'rgba(15, 23, 42, 0.92)',
+                color: '#ffffff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                zIndex: 10,
+                pointerEvents: 'none',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               }}
             >
-              <span>{st.icon}</span>
-              <span>{st.name}</span>
-              <span style={{ color: '#0f172a' }}>{st.temp}</span>
+              {hoveredState.name}
+              {hoveredState.temp !== undefined ? `: ${hoveredState.temp}°C` : ''}
             </div>
-          ))}
+          )}
+
+          {/* React Simple Maps - India States GeoJSON */}
+          <ComposableMap
+            projection="geoMercator"
+            projectionConfig={{
+              scale: 850,
+              center: [78.9629, 22.5937],
+            }}
+            style={{ width: '100%', height: '100%' }}
+          >
+            <ZoomableGroup
+              zoom={zoom}
+              center={center}
+              onMoveEnd={({ center: c, zoom: z }) => {
+                setCenter(c as [number, number])
+                setZoom(z)
+              }}
+            >
+              <Geographies geography="/india-states.geojson">
+                {({ geographies }) =>
+                  geographies.map((geo) => {
+                    const stateName = geo.properties.NAME_1
+                    const stateInfo = STATE_TEMPERATURES[stateName]
+                    const fillColor = stateInfo?.color || '#fde047'
+                    const isHovered = hoveredState?.name === stateName
+
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        fill={isHovered ? '#7f1d1d' : fillColor}
+                        stroke="#78350f"
+                        strokeWidth={0.7}
+                        onMouseEnter={() => setHoveredState({ name: stateName, temp: stateInfo?.temp })}
+                        onMouseLeave={() => setHoveredState(null)}
+                        style={{
+                          default: { outline: 'none', transition: 'fill 0.15s ease' },
+                          hover: { fill: '#7f1d1d', cursor: 'pointer', outline: 'none' },
+                          pressed: { outline: 'none' },
+                        }}
+                      />
+                    )
+                  })
+                }
+              </Geographies>
+
+              {/* Weather Station Pins */}
+              {weatherStations.map((st) => (
+                <Marker key={st.name} coordinates={st.coordinates}>
+                  <g style={{ cursor: 'pointer' }}>
+                    <circle r={5} fill="#0369a1" stroke="#ffffff" strokeWidth={1.5} />
+                    <foreignObject x="-40" y="-28" width="80" height="24">
+                      <div
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '2px',
+                          background: 'rgba(255, 255, 255, 0.95)',
+                          padding: '1px 5px',
+                          borderRadius: '8px',
+                          border: '1px solid #0369a1',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          fontSize: '0.6rem',
+                          fontWeight: 800,
+                          color: '#0369a1',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        <span>{st.icon}</span>
+                        <span>{st.name}</span>
+                        <span style={{ color: '#0f172a' }}>{st.temp}</span>
+                      </div>
+                    </foreignObject>
+                  </g>
+                </Marker>
+              ))}
+            </ZoomableGroup>
+          </ComposableMap>
+        </div>
+
+        {/* Temperature Legend */}
+        <div style={{ padding: '0.5rem 0.75rem', background: '#f8fafc', borderTop: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.68rem', color: '#334155' }}>
+          <span style={{ fontWeight: 700 }}>Mean Temp (°C):</span>
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+            {[
+              { label: '<18°', color: '#fef9c3' },
+              { label: '18–24°', color: '#fde047' },
+              { label: '25–28°', color: '#f59e0b' },
+              { label: '29–31°', color: '#ea580c' },
+              { label: '32–34°', color: '#c2410c' },
+              { label: '>34°', color: '#b91c1c' },
+            ].map((item) => (
+              <span key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '2px', background: item.color, border: '1px solid #78350f', display: 'inline-block' }} />
+                {item.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         {/* Action Buttons */}

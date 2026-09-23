@@ -1,20 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps'
 import { useQuery } from '@tanstack/react-query'
 import { api, type RegionMeta, type LocationSearchResult } from '../lib/api'
 import { probToFill } from '../lib/utils'
 import { useAppContext } from '../context/AppContext'
 import { LoadingSpinner, ErrorBanner } from './UIComponents'
-
-// ── Bounding box for India: lat 8–37, lon 68–97 ─────────────────────────
-const LAT_MIN = 6, LAT_MAX = 38, LON_MIN = 67, LON_MAX = 98
-
-function projectLon(lon: number, w: number) {
-  return ((lon - LON_MIN) / (LON_MAX - LON_MIN)) * w
-}
-function projectLat(lat: number, h: number) {
-  // Invert: higher lat = top
-  return ((LAT_MAX - lat) / (LAT_MAX - LAT_MIN)) * h
-}
 
 interface IndiaMapProps {
   selectedRegion: string | null
@@ -30,7 +20,8 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
   const [searchLoading, setSearchLoading] = useState(false)
   const [searchError, setSearchError] = useState<string | null>(null)
   const [searchResult, setSearchResult] = useState<LocationSearchResult | null>(locationResult)
-  const svgRef = useRef<SVGSVGElement>(null)
+  const [zoom, setZoom] = useState<number>(1)
+  const [center, setCenter] = useState<[number, number]>([78.9629, 22.5937])
 
   const { data: regions } = useQuery({
     queryKey: ['regions'],
@@ -79,8 +70,12 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
     }
   }, [searchQ, onRegionSelect])
 
-  // SVG viewport
-  const W = 380, H = 480
+  const handleZoomIn = () => setZoom((z) => Math.min(z * 1.4, 4))
+  const handleZoomOut = () => setZoom((z) => Math.max(z / 1.4, 0.8))
+  const handleReset = () => {
+    setZoom(1)
+    setCenter([78.9629, 22.5937])
+  }
 
   const hovered = confidenceMap?.find((c) => c.region === hoveredRegion) ?? null
 
@@ -231,7 +226,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
         </div>
       )}
 
-      {/* SVG Bubble Map */}
+      {/* Map Viewport */}
       {cmError ? (
         <ErrorBanner message="Could not load confidence map. Is the backend running on :8000?" />
       ) : (
@@ -243,109 +238,161 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
             border: '1px solid #cbd5e1',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
-            background: '#f0f9ff',
+            background: '#e0f2fe',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <svg
-            ref={svgRef}
-            viewBox={`0 0 ${W} ${H}`}
-            style={{ width: '100%', height: '100%' }}
-            aria-label="India forecast reliability map"
-            role="img"
+          {/* Zoom controls */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+              zIndex: 10,
+            }}
           >
-            <rect width={W} height={H} fill="#f0f9ff" />
+            <button
+              onClick={handleReset}
+              title="Reset View"
+              style={{
+                width: 24,
+                height: 24,
+                background: '#ffffff',
+                border: '1px solid #94a3b8',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+              }}
+            >
+              🏠
+            </button>
+            <button
+              onClick={handleZoomIn}
+              title="Zoom In"
+              style={{
+                width: 24,
+                height: 24,
+                background: '#ffffff',
+                border: '1px solid #94a3b8',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+              }}
+            >
+              +
+            </button>
+            <button
+              onClick={handleZoomOut}
+              title="Zoom Out"
+              style={{
+                width: 24,
+                height: 24,
+                background: '#ffffff',
+                border: '1px solid #94a3b8',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '0.85rem',
+                fontWeight: 700,
+              }}
+            >
+              -
+            </button>
+          </div>
 
-            {/* Grid lines */}
-            {Array.from({ length: 7 }, (_, i) => {
-              const lon = 68 + i * 5
-              const x = projectLon(lon, W)
-              return (
-                <g key={`vg${i}`}>
-                  <line x1={x} y1={0} x2={x} y2={H} stroke="#bae6fd" strokeWidth={0.8} strokeDasharray="4 4" />
-                  <text x={x + 2} y={H - 4} fill="#0369a1" fontSize={7}>{lon}°E</text>
-                </g>
-              )
-            })}
-            {Array.from({ length: 7 }, (_, i) => {
-              const lat = 8 + i * 5
-              const y = projectLat(lat, H)
-              return (
-                <g key={`hg${i}`}>
-                  <line x1={0} y1={y} x2={W} y2={y} stroke="#bae6fd" strokeWidth={0.8} strokeDasharray="4 4" />
-                  <text x={2} y={y - 2} fill="#0369a1" fontSize={7}>{lat}°N</text>
-                </g>
-              )
-            })}
-
-            {/* Region bubbles */}
-            {regions?.map((r: RegionMeta) => {
-              const prob = probLookup[r.name]
-              const x = projectLon(r.lon, W)
-              const y = projectLat(r.lat, H)
-              const color = prob !== undefined ? probToFill(prob) : '#334155'
-              const isSelected = r.name === selectedRegion
-              const isHovered = r.name === hoveredRegion
-              const radius = isSelected ? 10 : isHovered ? 9 : 7
-
-              return (
-                <g
-                  key={r.name}
-                  onClick={() => onRegionSelect(r.name, r.lat, r.lon)}
-                  onMouseEnter={() => setHoveredRegion(r.name)}
-                  onMouseLeave={() => setHoveredRegion(null)}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${r.name}: ${prob !== undefined ? (prob * 100).toFixed(1) + '% bust risk' : 'loading'}`}
-                  aria-pressed={isSelected}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') onRegionSelect(r.name, r.lat, r.lon)
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {/* Outer ring for selected */}
-                  {isSelected && (
-                    <circle
-                      cx={x} cy={y} r={radius + 4}
-                      fill="none"
-                      stroke="#f59e0b"
-                      strokeWidth={2}
-                      opacity={0.8}
+          <ComposableMap
+            projection="geoMercator"
+            projectionConfig={{
+              scale: 850,
+              center: [78.9629, 22.5937],
+            }}
+            style={{ width: '100%', height: '100%' }}
+          >
+            <ZoomableGroup
+              zoom={zoom}
+              center={center}
+              onMoveEnd={({ center: c, zoom: z }) => {
+                setCenter(c as [number, number])
+                setZoom(z)
+              }}
+            >
+              {/* State boundaries */}
+              <Geographies geography="/india-states.geojson">
+                {({ geographies }) =>
+                  geographies.map((geo) => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="#fef08a"
+                      stroke="#ca8a04"
+                      strokeWidth={0.6}
+                      style={{
+                        default: { outline: 'none' },
+                        hover: { fill: '#fde047', outline: 'none' },
+                        pressed: { outline: 'none' },
+                      }}
                     />
-                  )}
-                  {/* Main bubble */}
-                  <circle
-                    cx={x} cy={y} r={radius}
-                    fill={color}
-                    stroke={isSelected ? '#f59e0b' : isHovered ? 'white' : 'rgba(255,255,255,0.3)'}
-                    strokeWidth={isSelected ? 2 : isHovered ? 1.5 : 0.75}
-                    opacity={0.9}
-                    style={{ transition: 'r 0.15s ease, stroke-width 0.15s ease' }}
-                  />
-                  {/* Probability label */}
-                  {prob !== undefined && (
-                    <text
-                      x={x} y={y + 3.5}
-                      textAnchor="middle"
-                      fontSize={6}
-                      fontWeight={700}
-                      fill="white"
-                      style={{ pointerEvents: 'none', userSelect: 'none' }}
-                    >
-                      {(prob * 100).toFixed(0)}%
-                    </text>
-                  )}
-                </g>
-              )
-            })}
+                  ))
+                }
+              </Geographies>
 
-            {/* Title overlay */}
-            <text x={8} y={18} fontSize={9} fill="#0b4c8c" fontWeight={700} letterSpacing={1}>
-              INDIA FORECAST RELIABILITY — {32} SUBDIVISIONS
-            </text>
-          </svg>
+              {/* Subdivision Markers */}
+              {regions?.map((r: RegionMeta) => {
+                const prob = probLookup[r.name]
+                const color = prob !== undefined ? probToFill(prob) : '#334155'
+                const isSelected = r.name === selectedRegion
+                const isHovered = r.name === hoveredRegion
+                const radius = isSelected ? 9 : isHovered ? 8 : 6
+
+                return (
+                  <Marker
+                    key={r.name}
+                    coordinates={[r.lon, r.lat]}
+                    onClick={() => onRegionSelect(r.name, r.lat, r.lon)}
+                    onMouseEnter={() => setHoveredRegion(r.name)}
+                    onMouseLeave={() => setHoveredRegion(null)}
+                  >
+                    <g style={{ cursor: 'pointer' }}>
+                      {isSelected && (
+                        <circle
+                          cx={0} cy={0} r={radius + 4}
+                          fill="none"
+                          stroke="#f59e0b"
+                          strokeWidth={2}
+                          opacity={0.8}
+                        />
+                      )}
+                      <circle
+                        cx={0} cy={0} r={radius}
+                        fill={color}
+                        stroke={isSelected ? '#f59e0b' : isHovered ? 'white' : 'rgba(255,255,255,0.4)'}
+                        strokeWidth={isSelected ? 2 : isHovered ? 1.5 : 0.75}
+                        opacity={0.92}
+                      />
+                      {prob !== undefined && (
+                        <text
+                          x={0} y={3}
+                          textAnchor="middle"
+                          fontSize={5.5}
+                          fontWeight={700}
+                          fill="white"
+                          style={{ pointerEvents: 'none', userSelect: 'none' }}
+                        >
+                          {(prob * 100).toFixed(0)}%
+                        </text>
+                      )}
+                    </g>
+                  </Marker>
+                )
+              })}
+            </ZoomableGroup>
+          </ComposableMap>
 
           {/* No data overlay */}
           {!cmLoading && !confidenceMap?.length && (
@@ -372,3 +419,4 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
     </div>
   )
 }
+
