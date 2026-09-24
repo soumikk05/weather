@@ -4,6 +4,7 @@ import { RegionDetail } from './RegionDetail'
 import { ExplainPanel } from './ExplainPanel'
 import { WhatIfLab } from './WhatIfLab'
 import { EmptyState } from './UIComponents'
+import { GoogleWeatherCard } from './GoogleWeatherCard'
 import { useAppContext } from '../context/AppContext'
 
 type Tab = 'detail' | 'explain' | 'whatif'
@@ -16,7 +17,7 @@ export function AICockpit() {
   const [activeTab, setActiveTab] = useState<Tab>('detail')
 
   // Sidebar control states
-  const [initDate, setInitDate] = useState('2024-12-30')
+  const [initDate, setInitDate] = useState('2026-09-25')
   const [leadTime, setLeadTime] = useState(5)
   const [mapMetric, setMapMetric] = useState<'confidence' | 'prob' | 'error'>('confidence')
   const [subdivisionFilter, setSubdivisionFilter] = useState('all')
@@ -87,10 +88,11 @@ export function AICockpit() {
               outline: 'none',
             }}
           >
-            <option value="2024-12-30">2024-12-30</option>
-            <option value="2024-12-29">2024-12-29</option>
-            <option value="2024-12-28">2024-12-28</option>
-            <option value="2024-12-25">2024-12-25</option>
+            <option value="2026-09-25">2026-09-25 (Today, Fri)</option>
+            <option value="2026-09-24">2026-09-24 (Thu)</option>
+            <option value="2026-09-23">2026-09-23 (Wed)</option>
+            <option value="2026-09-22">2026-09-22 (Tue)</option>
+            <option value="2026-09-21">2026-09-21 (Mon)</option>
           </select>
         </div>
 
@@ -258,6 +260,11 @@ export function AICockpit() {
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#15803d', marginTop: '0.2rem' }}>Quiescent...</div>
             <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#15803d', marginTop: '0.25rem' }}>↑ Terrain: Central Plateau</div>
           </div>
+        </div>
+
+        {/* ── GOOGLE WEATHER CARD: Weekly Forecast (Last Week Accuracy | Today | Next Week) ── */}
+        <div style={{ width: '100%' }}>
+          <GoogleWeatherCard selectedRegion={selectedRegion} />
         </div>
 
         {/* 2-Column Cockpit Workspace: Map Left, Inspector Right */}

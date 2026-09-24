@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps'
 import { useQuery } from '@tanstack/react-query'
 import { api, type RegionMeta, type LocationSearchResult } from '../lib/api'
@@ -12,6 +12,8 @@ interface IndiaMapProps {
   locationResult: LocationSearchResult | null
 }
 
+const MAP_CENTER: [number, number] = [82.0, 22.0]
+
 export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: IndiaMapProps) {
   const { today } = useAppContext()
   const [leadDay, setLeadDay] = useState(1)
@@ -21,7 +23,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
   const [searchError, setSearchError] = useState<string | null>(null)
   const [searchResult, setSearchResult] = useState<LocationSearchResult | null>(locationResult)
   const [zoom, setZoom] = useState<number>(1)
-  const [center, setCenter] = useState<[number, number]>([78.9629, 22.5937])
+  const [center, setCenter] = useState<[number, number]>(MAP_CENTER)
 
   const { data: regions } = useQuery({
     queryKey: ['regions'],
@@ -43,16 +45,26 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
     return m
   }, [confidenceMap])
 
+  // If external locationResult changes, zoom to it
+  useEffect(() => {
+    if (locationResult) {
+      setSearchResult(locationResult)
+      setCenter([locationResult.subdivision_lon, locationResult.subdivision_lat])
+      setZoom(2.8)
+    }
+  }, [locationResult])
+
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     const q = searchQ.trim()
     if (!q) return
     setSearchLoading(true)
     setSearchError(null)
-    setSearchResult(null)
     try {
       const result = await api.locationsSearch(q)
       setSearchResult(result)
+      setCenter([result.subdivision_lon, result.subdivision_lat])
+      setZoom(2.8)
       onRegionSelect(
         result.resolved_subdivision,
         result.subdivision_lat,
@@ -70,11 +82,18 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
     }
   }, [searchQ, onRegionSelect])
 
+  const handleSelectMarker = (regionName: string, lat: number, lon: number) => {
+    setCenter([lon, lat])
+    setZoom(2.4)
+    onRegionSelect(regionName, lat, lon)
+  }
+
   const handleZoomIn = () => setZoom((z) => Math.min(z * 1.4, 4))
   const handleZoomOut = () => setZoom((z) => Math.max(z / 1.4, 0.8))
   const handleReset = () => {
     setZoom(1)
-    setCenter([78.9629, 22.5937])
+    setCenter(MAP_CENTER)
+    setSearchResult(null)
   }
 
   const hovered = confidenceMap?.find((c) => c.region === hoveredRegion) ?? null
@@ -90,12 +109,12 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               type="search"
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Search city or subdivision (e.g. Bengaluru, Odisha)"
+              placeholder="Search city or subdivision (e.g. Bengaluru, Odisha, Jaipur)"
               aria-label="Search location"
               style={{
                 flex: 1,
-                padding: '0.375rem 0.625rem',
-                fontSize: '0.8rem',
+                padding: '0.45rem 0.65rem',
+                fontSize: '0.82rem',
                 border: '1px solid var(--color-surface-300)',
                 borderRadius: 'var(--radius-sm)',
                 background: 'var(--color-surface-0)',
@@ -108,24 +127,24 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               disabled={searchLoading || !searchQ.trim()}
               aria-label="Submit location search"
               style={{
-                padding: '0.375rem 0.75rem',
-                background: 'var(--color-gov-blue-600)',
+                padding: '0.45rem 0.85rem',
+                background: '#0b4c8c',
                 color: 'white',
                 border: 'none',
                 borderRadius: 'var(--radius-sm)',
                 cursor: searchLoading ? 'not-allowed' : 'pointer',
-                fontSize: '0.8rem',
-                fontWeight: 600,
+                fontSize: '0.82rem',
+                fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.375rem',
               }}
             >
-              {searchLoading ? <LoadingSpinner size={14} /> : '↵'}
+              {searchLoading ? <LoadingSpinner size={14} /> : '🔍 Search'}
             </button>
           </div>
           {searchError && (
-            <div style={{ marginTop: '0.375rem', fontSize: '0.72rem', color: '#be123c' }}>
+            <div style={{ marginTop: '0.375rem', fontSize: '0.72rem', color: '#be123c', fontWeight: 600 }}>
               {searchError}
             </div>
           )}
@@ -133,7 +152,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
 
         {/* Lead day selector */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.68rem', color: 'var(--color-surface-600)', fontWeight: 600 }}>Day:</span>
+          <span style={{ fontSize: '0.68rem', color: 'var(--color-surface-600)', fontWeight: 700 }}>Day:</span>
           {Array.from({ length: 10 }, (_, i) => i + 1).map((d) => (
             <button
               key={d}
@@ -144,13 +163,13 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
                 width: 24,
                 height: 24,
                 border: '1px solid',
-                borderColor: leadDay === d ? 'var(--color-gov-blue-500)' : 'var(--color-surface-300)',
-                background: leadDay === d ? 'var(--color-gov-blue-500)' : 'transparent',
+                borderColor: leadDay === d ? '#0b4c8c' : 'var(--color-surface-300)',
+                background: leadDay === d ? '#0b4c8c' : 'transparent',
                 color: leadDay === d ? 'white' : 'var(--color-surface-700)',
                 borderRadius: 'var(--radius-sm)',
                 cursor: 'pointer',
                 fontSize: '0.68rem',
-                fontWeight: leadDay === d ? 700 : 400,
+                fontWeight: leadDay === d ? 700 : 500,
               }}
             >
               {d}
@@ -160,31 +179,48 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
         </div>
       </div>
 
-      {/* City resolution disclosure */}
-      {searchResult?.match_confidence === 'resolved_from_city' && (
+      {/* City resolution disclosure / Active searched banner */}
+      {searchResult && (
         <div
           role="status"
           style={{
-            padding: '0.375rem 0.625rem',
-            background: 'var(--color-gov-blue-50)',
-            border: '1px solid var(--color-gov-blue-200)',
+            padding: '0.4rem 0.65rem',
+            background: '#e0f2fe',
+            border: '1px solid #7dd3fc',
             borderRadius: 'var(--radius-md)',
-            fontSize: '0.72rem',
-            color: 'var(--color-gov-blue-800)',
+            fontSize: '0.75rem',
+            color: '#0369a1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <strong>{searchResult.resolved_subdivision}</strong> subdivision ·
-          nearest to <em>{searchResult.matched_name}</em>
-          {searchResult.distance_km && `, ${searchResult.distance_km.toFixed(0)} km`} ·{' '}
-          <span style={{ color: 'var(--color-surface-500)', fontSize: '0.68rem' }}>
-            City-level resolution is a known MVP limitation.
-          </span>
+          <div>
+            <strong>📍 {searchResult.matched_name || searchResult.query}</strong> resolved to{' '}
+            <strong>{searchResult.resolved_subdivision}</strong>
+            {searchResult.distance_km ? ` (${searchResult.distance_km.toFixed(0)} km from center)` : ''} · Zoomed
+          </div>
+          <button
+            onClick={handleReset}
+            style={{
+              background: '#ffffff',
+              border: '1px solid #7dd3fc',
+              borderRadius: '4px',
+              padding: '0.15rem 0.4rem',
+              fontSize: '0.68rem',
+              cursor: 'pointer',
+              fontWeight: 700,
+              color: '#0369a1',
+            }}
+          >
+            Reset View
+          </button>
         </div>
       )}
 
       {/* Legend */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.65rem', color: 'var(--color-surface-600)', flexWrap: 'wrap' }}>
-        <span style={{ fontWeight: 600 }}>Bust Risk (D+{leadDay}):</span>
+        <span style={{ fontWeight: 700 }}>Bust Risk (D+{leadDay}):</span>
         {[
           ['#1d4ed8', '<10%'],
           ['#0369a1', '10–20%'],
@@ -233,7 +269,7 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
         <div
           style={{
             flex: 1,
-            minHeight: 0,
+            minHeight: '480px',
             position: 'relative',
             border: '1px solid #cbd5e1',
             borderRadius: 'var(--radius-lg)',
@@ -260,14 +296,15 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               onClick={handleReset}
               title="Reset View"
               style={{
-                width: 24,
-                height: 24,
+                width: 26,
+                height: 26,
                 background: '#ffffff',
                 border: '1px solid #94a3b8',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '0.75rem',
+                fontSize: '0.8rem',
                 fontWeight: 700,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               }}
             >
               🏠
@@ -276,14 +313,15 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               onClick={handleZoomIn}
               title="Zoom In"
               style={{
-                width: 24,
-                height: 24,
+                width: 26,
+                height: 26,
                 background: '#ffffff',
                 border: '1px solid #94a3b8',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '0.85rem',
+                fontSize: '0.9rem',
                 fontWeight: 700,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               }}
             >
               +
@@ -292,14 +330,15 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
               onClick={handleZoomOut}
               title="Zoom Out"
               style={{
-                width: 24,
-                height: 24,
+                width: 26,
+                height: 26,
                 background: '#ffffff',
                 border: '1px solid #94a3b8',
                 borderRadius: '4px',
                 cursor: 'pointer',
-                fontSize: '0.85rem',
+                fontSize: '0.9rem',
                 fontWeight: 700,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
               }}
             >
               -
@@ -309,17 +348,32 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
           <ComposableMap
             projection="geoMercator"
             projectionConfig={{
-              scale: 850,
-              center: [78.9629, 22.5937],
+              scale: 1050,
+              center: MAP_CENTER,
             }}
+            width={800}
+            height={580}
             style={{ width: '100%', height: '100%' }}
           >
             <ZoomableGroup
               zoom={zoom}
               center={center}
-              onMoveEnd={({ center: c, zoom: z }) => {
-                setCenter(c as [number, number])
-                setZoom(z)
+              minZoom={0.8}
+              maxZoom={5}
+              onMoveEnd={({ coordinates, zoom: z }: any) => {
+                if (
+                  coordinates &&
+                  Array.isArray(coordinates) &&
+                  typeof coordinates[0] === 'number' &&
+                  typeof coordinates[1] === 'number' &&
+                  !isNaN(coordinates[0]) &&
+                  !isNaN(coordinates[1])
+                ) {
+                  setCenter(coordinates as [number, number])
+                }
+                if (typeof z === 'number' && !isNaN(z) && z > 0) {
+                  setZoom(z)
+                }
               }}
             >
               {/* State boundaries */}
@@ -348,32 +402,32 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
                 const color = prob !== undefined ? probToFill(prob) : '#334155'
                 const isSelected = r.name === selectedRegion
                 const isHovered = r.name === hoveredRegion
-                const radius = isSelected ? 9 : isHovered ? 8 : 6
+                const radius = isSelected ? 10 : isHovered ? 8 : 6
 
                 return (
                   <Marker
                     key={r.name}
                     coordinates={[r.lon, r.lat]}
-                    onClick={() => onRegionSelect(r.name, r.lat, r.lon)}
+                    onClick={() => handleSelectMarker(r.name, r.lat, r.lon)}
                     onMouseEnter={() => setHoveredRegion(r.name)}
                     onMouseLeave={() => setHoveredRegion(null)}
                   >
                     <g style={{ cursor: 'pointer' }}>
                       {isSelected && (
                         <circle
-                          cx={0} cy={0} r={radius + 4}
+                          cx={0} cy={0} r={radius + 5}
                           fill="none"
-                          stroke="#f59e0b"
-                          strokeWidth={2}
-                          opacity={0.8}
+                          stroke="#dc2626"
+                          strokeWidth={2.5}
+                          opacity={0.9}
                         />
                       )}
                       <circle
                         cx={0} cy={0} r={radius}
                         fill={color}
-                        stroke={isSelected ? '#f59e0b' : isHovered ? 'white' : 'rgba(255,255,255,0.4)'}
-                        strokeWidth={isSelected ? 2 : isHovered ? 1.5 : 0.75}
-                        opacity={0.92}
+                        stroke={isSelected ? '#dc2626' : isHovered ? 'white' : 'rgba(255,255,255,0.6)'}
+                        strokeWidth={isSelected ? 2.5 : isHovered ? 1.5 : 0.75}
+                        opacity={0.95}
                       />
                       {prob !== undefined && (
                         <text
@@ -391,6 +445,29 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
                   </Marker>
                 )
               })}
+
+              {/* Highlight Pin for Searched Location */}
+              {searchResult && (
+                <Marker coordinates={[searchResult.subdivision_lon, searchResult.subdivision_lat]}>
+                  <g style={{ pointerEvents: 'none' }}>
+                    <circle cx={0} cy={0} r={18} fill="rgba(220, 38, 38, 0.2)" />
+                    <circle cx={0} cy={0} r={6} fill="#dc2626" stroke="#ffffff" strokeWidth={2} />
+                    <text
+                      x={0}
+                      y={-12}
+                      textAnchor="middle"
+                      fontSize={7.5}
+                      fontWeight={800}
+                      fill="#0b4c8c"
+                      stroke="#ffffff"
+                      strokeWidth={2}
+                      paintOrder="stroke fill"
+                    >
+                      📍 {searchResult.matched_name || searchResult.resolved_subdivision}
+                    </text>
+                  </g>
+                </Marker>
+              )}
             </ZoomableGroup>
           </ComposableMap>
 
@@ -419,4 +496,3 @@ export function IndiaMap({ selectedRegion, onRegionSelect, locationResult }: Ind
     </div>
   )
 }
-

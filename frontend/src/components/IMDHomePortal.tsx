@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps'
 
+
 interface IMDHomePortalProps {
   onOpenAICockpit: () => void
   onOpenLogin: () => void
@@ -60,8 +61,8 @@ export function IMDHomePortal({ onOpenAICockpit }: IMDHomePortalProps) {
     { name: 'Port Blair', temp: '28°C', icon: '⛈️', coordinates: [92.7265, 11.6234] as [number, number] },
   ]
 
-  const handleZoomIn = () => setZoom((z) => Math.min(z * 1.4, 4))
-  const handleZoomOut = () => setZoom((z) => Math.max(z / 1.4, 0.8))
+  const handleZoomIn = () => setZoom((z) => Math.min((z || 1) * 1.3, 4))
+  const handleZoomOut = () => setZoom((z) => Math.max((z || 1) / 1.3, 0.8))
   const handleReset = () => {
     setZoom(1)
     setCenter([78.9629, 22.5937])
@@ -70,19 +71,30 @@ export function IMDHomePortal({ onOpenAICockpit }: IMDHomePortalProps) {
   return (
     <div
       style={{
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1.2fr 1fr',
-        gap: '1rem',
-        padding: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1.25rem',
+        padding: '1.25rem',
         background: '#e0f2fe',
         minHeight: 'calc(100vh - 160px)',
         overflowY: 'auto',
       }}
     >
-      {/* ── COLUMN 1: CURRENT WEATHER (State Map of India) ──────────────── */}
+
+
+      {/* ── 3-COLUMN PORTAL GRID BELOW ── */}
       <div
         style={{
-          background: '#ffffff',
+          display: 'grid',
+          gridTemplateColumns: '1.2fr 1.2fr 1fr',
+          gap: '1rem',
+          flex: 1,
+        }}
+      >
+        {/* ── COLUMN 1: CURRENT WEATHER (State Map of India) ──────────────── */}
+        <div
+          style={{
+            background: '#ffffff',
           borderRadius: '8px',
           border: '1px solid #bae6fd',
           boxShadow: '0 4px 12px rgba(0, 51, 102, 0.08)',
@@ -214,71 +226,89 @@ export function IMDHomePortal({ onOpenAICockpit }: IMDHomePortalProps) {
               scale: 850,
               center: [78.9629, 22.5937],
             }}
+            width={800}
+            height={520}
             style={{ width: '100%', height: '100%' }}
           >
             <ZoomableGroup
               zoom={zoom}
               center={center}
-              onMoveEnd={({ center: c, zoom: z }) => {
-                setCenter(c as [number, number])
-                setZoom(z)
+              minZoom={0.8}
+              maxZoom={4}
+              onMoveEnd={({ coordinates, zoom: z }: any) => {
+                if (
+                  coordinates &&
+                  Array.isArray(coordinates) &&
+                  typeof coordinates[0] === 'number' &&
+                  typeof coordinates[1] === 'number' &&
+                  !isNaN(coordinates[0]) &&
+                  !isNaN(coordinates[1])
+                ) {
+                  setCenter(coordinates as [number, number])
+                }
+                if (typeof z === 'number' && !isNaN(z) && z > 0) {
+                  setZoom(z)
+                }
               }}
             >
               <Geographies geography="/india-states.geojson">
                 {({ geographies }) =>
-                  geographies.map((geo) => {
-                    const stateName = geo.properties.NAME_1
-                    const stateInfo = STATE_TEMPERATURES[stateName]
-                    const fillColor = stateInfo?.color || '#fde047'
-                    const isHovered = hoveredState?.name === stateName
+                  geographies && geographies.length > 0 ? (
+                    geographies.map((geo) => {
+                      const stateName = geo.properties?.NAME_1 || geo.properties?.ST_NM || geo.properties?.name || ''
+                      const stateInfo = STATE_TEMPERATURES[stateName]
+                      const fillColor = stateInfo?.color || '#fde047'
+                      const isHovered = hoveredState?.name === stateName
 
-                    return (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill={isHovered ? '#7f1d1d' : fillColor}
-                        stroke="#78350f"
-                        strokeWidth={0.7}
-                        onMouseEnter={() => setHoveredState({ name: stateName, temp: stateInfo?.temp })}
-                        onMouseLeave={() => setHoveredState(null)}
-                        style={{
-                          default: { outline: 'none', transition: 'fill 0.15s ease' },
-                          hover: { fill: '#7f1d1d', cursor: 'pointer', outline: 'none' },
-                          pressed: { outline: 'none' },
-                        }}
-                      />
-                    )
-                  })
+                      return (
+                        <Geography
+                          key={geo.rsmKey}
+                          geography={geo}
+                          fill={isHovered ? '#7f1d1d' : fillColor}
+                          stroke="#78350f"
+                          strokeWidth={0.7}
+                          onMouseEnter={() => setHoveredState({ name: stateName, temp: stateInfo?.temp })}
+                          onMouseLeave={() => setHoveredState(null)}
+                          style={{
+                            outline: 'none',
+                            transition: 'fill 0.15s ease',
+                            cursor: 'pointer',
+                          }}
+                        />
+                      )
+                    })
+                  ) : null
                 }
               </Geographies>
 
-              {/* Weather Station Pins */}
+              {/* Weather Station Pins with crisp SVG elements */}
               {weatherStations.map((st) => (
                 <Marker key={st.name} coordinates={st.coordinates}>
                   <g style={{ cursor: 'pointer' }}>
-                    <circle r={5} fill="#0369a1" stroke="#ffffff" strokeWidth={1.5} />
-                    <foreignObject x="-40" y="-28" width="80" height="24">
-                      <div
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '2px',
-                          background: 'rgba(255, 255, 255, 0.95)',
-                          padding: '1px 5px',
-                          borderRadius: '8px',
-                          border: '1px solid #0369a1',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                          fontSize: '0.6rem',
-                          fontWeight: 800,
-                          color: '#0369a1',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        <span>{st.icon}</span>
-                        <span>{st.name}</span>
-                        <span style={{ color: '#0f172a' }}>{st.temp}</span>
-                      </div>
-                    </foreignObject>
+                    <circle r={6} fill="#0369a1" stroke="#ffffff" strokeWidth={2} />
+                    <circle r={2.5} fill="#ffffff" />
+                    <rect
+                      x={-42}
+                      y={-24}
+                      width={84}
+                      height={18}
+                      rx={5}
+                      fill="rgba(255, 255, 255, 0.95)"
+                      stroke="#0369a1"
+                      strokeWidth={1}
+                      filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))"
+                    />
+                    <text
+                      x={0}
+                      y={-12}
+                      textAnchor="middle"
+                      fontSize={8.5}
+                      fontWeight={800}
+                      fill="#0369a1"
+                      fontFamily="system-ui, sans-serif"
+                    >
+                      {st.name} {st.temp}
+                    </text>
                   </g>
                 </Marker>
               ))}
@@ -506,5 +536,6 @@ export function IMDHomePortal({ onOpenAICockpit }: IMDHomePortalProps) {
         </div>
       </div>
     </div>
+  </div>
   )
 }

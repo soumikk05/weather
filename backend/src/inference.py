@@ -67,8 +67,8 @@ class ForecastInferenceEngine:
                 self.latest_valid_date = str(valid_series.max())
                 self.earliest_valid_date = str(valid_series.min())
             else:
-                self.latest_valid_date = self.available_dates[-1] if self.available_dates else "2024-12-31"
-                self.earliest_valid_date = self.available_dates[0] if self.available_dates else "2022-01-01"
+                self.latest_valid_date = self.available_dates[-1] if self.available_dates else "2026-09-25"
+                self.earliest_valid_date = self.available_dates[0] if self.available_dates else "2023-09-18"
 
             if "data_source" in self.data_df.columns:
                 sources = self.data_df["data_source"].unique().tolist()
@@ -80,8 +80,8 @@ class ForecastInferenceEngine:
         else:
             self.data_df = None
             self.available_dates = []
-            self.latest_valid_date = "2024-12-31"
-            self.earliest_valid_date = "2022-01-01"
+            self.latest_valid_date = "2026-09-25"
+            self.earliest_valid_date = "2023-09-18"
             self.data_source = "synthetic"
             self.is_synthetic_or_replay = True
 
